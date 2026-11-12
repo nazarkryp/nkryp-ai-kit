@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\AppName.Api.Contracts\AppName.Api.Contracts.csproj" />
+        <ProjectReference Include="..\AppName.Common\AppName.Common.csproj" />
+        <ProjectReference Include="..\AppName.Domain\AppName.Domain.csproj" />
+        <ProjectReference Include="..\AppName.Persistence\AppName.Persistence.csproj" />
+        <!-- @module:auth -->
+        <ProjectReference Include="..\AppName.Security\AppName.Security.csproj" />
+        <!-- @end -->
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentValidation" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+        <PackageReference Include="MediatR" />
+        <PackageReference Include="Microsoft.Extensions.Options" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="AppName.UnitTests" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,17 @@
+# @file-module:docker
+**/.dockerignore
+**/.env
+**/appsettings.local.json
+**/appsettings.Development.json
+**/.git
+**/.gitignore
+**/.vs
+**/.vscode
+**/.idea
+**/*.*proj.user
+**/bin
+**/obj
+**/data
+**/compose*.yaml
+**/Dockerfile*
+tests

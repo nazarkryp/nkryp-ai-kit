@@ -1,0 +1,14 @@
+{
+  "name": "nkryp-ai-kit",
+  "description": "Skills, workflows and tools for AI-assisted development.",
+  "owner": {
+    "name": "nazarkryp"
+  },
+  "plugins": [
+    {
+      "name": "nkryp-ai-kit",
+      "source": "./",
+      "description": "Skills, workflows and tools for AI-assisted development."
+    }
+  ]
+}

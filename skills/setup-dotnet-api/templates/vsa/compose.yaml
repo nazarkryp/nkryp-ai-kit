@@ -1,0 +1,23 @@
+# @file-module:docker
+services:
+  api:
+    image: appname-api
+    build:
+      context: .
+      dockerfile: src/AppName.Api/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      # A named volume, so the non-root app user owns /app/data on every host.
+      - data:/app/data
+    environment:
+      # Trust the Docker networks as proxies, so the rate limit sees the client address.
+      ForwardedHeaders__KnownNetworks__0: "172.16.0.0/12"
+      # @module:auth
+      # Optional. Without it, the server creates /app/data/jwt-secret on the first start.
+      # Jwt__Secret: "<output of: openssl rand -base64 32>"
+      # @end
+    restart: on-failure:5
+
+volumes:
+  data:

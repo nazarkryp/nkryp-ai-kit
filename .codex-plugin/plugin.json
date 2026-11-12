@@ -1,0 +1,10 @@
+{
+  "name": "nkryp-ai-kit",
+  "version": "1.0.0",
+  "description": "Skills, workflows and tools for AI-assisted development.",
+  "author": {
+    "name": "nazarkryp"
+  },
+  "repository": "https://github.com/nazarkryp/nkryp-ai-kit",
+  "skills": "./skills/"
+}
