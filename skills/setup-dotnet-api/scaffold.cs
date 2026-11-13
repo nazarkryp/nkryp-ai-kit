@@ -1,4 +1,6 @@
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 const string Usage = """
@@ -68,9 +70,10 @@ if (Directory.Exists(outFull) && Directory.EnumerateFileSystemEntries(outFull).A
     return Fail($"--out folder '{outFull}' is not empty.", Usage);
 
 var scriptDir = AppContext.GetData("EntryPointFileDirectoryPath") as string ?? Directory.GetCurrentDirectory();
-var templateRoot = Path.Combine(scriptDir, "templates", arch);
-if (!Directory.Exists(templateRoot))
-    return Fail($"Template folder not found: {templateRoot}", Usage);
+var templateRoots = new[] { Path.Combine(scriptDir, "templates", "shared"), Path.Combine(scriptDir, "templates", arch) };
+foreach (var root in templateRoots)
+    if (!Directory.Exists(root))
+        return Fail($"Template folder not found: {root}", Usage);
 
 var lower = name.Replace('.', '-').ToLowerInvariant();
 string Rename(string s) => s.Replace("AppName", name, StringComparison.Ordinal).Replace("appname", lower, StringComparison.Ordinal);
@@ -80,13 +83,16 @@ var startRx = new Regex(@"^(//|#|<!--)\s*@module:(!?)(\w+)\s*(-->)?$");
 var endRx = new Regex(@"^(//|#|<!--)\s*@end\s*(-->)?$");
 
 var written = 0;
-var files = Directory.EnumerateFiles(templateRoot, "*", SearchOption.AllDirectories)
-    .Select(f => (Full: f, Rel: Path.GetRelativePath(templateRoot, f)))
+var files = templateRoots
+    .SelectMany(root => Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories)
+        .Select(f => (Full: f, Rel: Path.GetRelativePath(root, f))))
     .Where(f => f.Rel.Split(Path.DirectorySeparatorChar).All(s => s != "bin" && s != "obj") && Path.GetFileName(f.Full) != ".DS_Store")
     .OrderBy(f => f.Rel, StringComparer.Ordinal)
     .ToList();
 
 var errors = new List<string>();
+foreach (var dup in files.GroupBy(f => f.Rel).Where(g => g.Count() > 1))
+    errors.Add($"{dup.Key}: the file is in templates/shared and in templates/{arch}. Keep one copy.");
 var outputs = new List<(string Path, string Text)>();
 
 foreach (var (full, rel) in files)
@@ -159,6 +165,22 @@ foreach (var (full, rel) in files)
     var outRel = string.Join(Path.DirectorySeparatorChar, rel.Split(Path.DirectorySeparatorChar).Select(Rename));
     outputs.Add((Path.Combine(outFull, outRel), result));
 }
+
+// The setup record lets the update-dotnet-api skill regenerate the same solution from newer templates.
+var pluginJson = Path.Combine(scriptDir, "..", "..", ".claude-plugin", "plugin.json");
+var kitVersion = File.Exists(pluginJson)
+    ? JsonNode.Parse(File.ReadAllText(pluginJson))?["version"]?.GetValue<string>() ?? "unknown"
+    : "unknown";
+var moduleOrder = new[] { "auth", "permissions", "signup", "docker" };
+var record = new JsonObject
+{
+    ["kit"] = "nkryp-ai-kit",
+    ["kitVersion"] = kitVersion,
+    ["name"] = name,
+    ["arch"] = arch,
+    ["modules"] = new JsonArray(moduleOrder.Where(enabled.Contains).Select(m => (JsonNode)m).ToArray()),
+};
+outputs.Add((Path.Combine(outFull, ".agents", "setup.json"), record.ToJsonString(new JsonSerializerOptions { WriteIndented = true }) + "\n"));
 
 if (errors.Count > 0)
 {

@@ -11,6 +11,10 @@ same name, and the plugin holds all skills.
 | Skill | What it does |
 |---|---|
 | [`setup-dotnet-api`](skills/setup-dotnet-api/SKILL.md) | Creates a new ASP.NET Core (.NET 10) API solution from templates. |
+| [`update-dotnet-api`](skills/update-dotnet-api/SKILL.md) | Brings the agent docs and root config of a generated solution up to the latest templates. |
+| [`dispatch-agents`](skills/dispatch-agents/SKILL.md) | Splits work into tracks for subagents. The lead decides the approach and writes high-risk tasks; workers write the rest. |
+| [`dispatch-agents-light`](skills/dispatch-agents-light/SKILL.md) | Variant for small or mechanical work: workers choose the approach, a reviewer checks high-risk tasks. Manual only. |
+| [`dispatch-agents-pro`](skills/dispatch-agents-pro/SKILL.md) | Variant for long plans and risky work: the lead only decides and reviews, workers write all code. Manual only. |
 
 ## Install
 
@@ -82,6 +86,15 @@ it generates and verifies the solution.
 
 Prerequisite: the .NET 10 SDK.
 
+### Update a generated solution
+
+The solution keeps its settings in `.agents/setup.json`. Keep this file in the repository. After you
+update the plugin, ask your agent to update the solution to the latest kit, or run
+`/nkryp-ai-kit:update-dotnet-api`. The skill renders the latest templates with the same settings and
+proposes changes to the agent docs and the root config files, one file at a time. It keeps your own
+text and never changes `src/` or `tests/`. A solution without `setup.json` works too: the skill
+detects the settings and asks you to confirm them.
+
 ### Layout
 
 ```
@@ -89,6 +102,7 @@ skills/setup-dotnet-api/
   SKILL.md                   the steps the agent follows
   scaffold.cs                copies a template, keeps the chosen modules, renames AppName
   references/DATABASE.md     the contract for the database step
+  templates/shared/          files that both architectures use
   templates/clean/           Clean Architecture template
   templates/vsa/             vertical slice template
 ```
@@ -96,7 +110,12 @@ skills/setup-dotnet-api/
 ### Maintain the templates
 
 The templates are normal .NET solutions with the placeholder `AppName` (and `appname` for lowercase
-names). Module markers decide what `scaffold.cs` keeps:
+names). `scaffold.cs` copies `templates/shared/` and `templates/<arch>/` into one output. Put a file
+that is the same for both architectures in `shared/`. Put a file that is different in `clean/` and
+`vsa/`. A path must not be in `shared/` and in an architecture folder: `scaffold.cs` stops with an
+error.
+
+Module markers decide what `scaffold.cs` keeps:
 
 | Marker | Meaning |
 |---|---|

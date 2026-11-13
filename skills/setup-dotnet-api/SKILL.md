@@ -5,7 +5,8 @@ description: Create a new ASP.NET Core (.NET 10) API solution with Result patter
 
 # Set up a .NET API solution
 
-This skill creates a new solution from proven templates in `templates/<arch>/` next to this file.
+This skill creates a new solution from proven templates in `templates/shared/` and `templates/<arch>/`
+next to this file.
 `scaffold.cs` copies them, keeps only the chosen modules, and renames `AppName` to the solution name.
 You then add the parts that need a decision: the database and the project description.
 
@@ -112,3 +113,5 @@ Completion criterion: steps 1-3 (and 4 and 5 when they apply) pass in one run, a
 
 Tell the user: the folder, the architecture and modules, the database, the test totals, how to run
 the API, and the known gaps listed at the end of `.agents/PERMISSIONS.md` (authentication only).
+Say that `.agents/setup.json` records the setup: keep it in the repository, because the
+`update-dotnet-api` skill uses it to bring the solution up to newer templates.

@@ -16,12 +16,27 @@ coding agents. The repo is also a plugin marketplace (`nkryp-ai-kit`) for Claude
 
 ## Skills
 
+### update-dotnet-api
+
+Reviews a solution made by `setup-dotnet-api` against the latest templates. It depends on
+`scaffold.cs` and on `.agents/setup.json`, which `scaffold.cs` writes. When you add or rename a
+`scaffold.cs` option or module, update the detection table in `skills/update-dotnet-api/SKILL.md`
+step 1 too.
+
+### dispatch-agents
+
+`dispatch-agents`, `dispatch-agents-light` and `dispatch-agents-pro` are three variants of one skill.
+The light and pro variants replace the base skill for the session. Keep their shared parts the same in
+all three files: the track rules, the brief fields, the report shape and the "Other agents" block.
+A change to one of these parts is a change to all three files.
+
 ### setup-dotnet-api
 
 Creates a new ASP.NET Core (.NET 10) API solution from templates.
 
 - Everything under `skills/setup-dotnet-api/templates/` is template output, not instructions for this
-  repo. The `CLAUDE.md`, `AGENTS.md` and `.agents/*.md` files there go into the generated solution.
+  repo. `templates/shared/` holds the files that are the same for both architectures, for example
+  `.agents/INSTRUCTIONS.md`. Edit them there, not in `clean/` or `vsa/`. The `CLAUDE.md`, `AGENTS.md` and `.agents/*.md` files there go into the generated solution.
   Edit them as template content.
 - Before you edit a template, read "Maintain the templates" in `README.md`. It defines the `AppName`
   placeholder, the module markers that `scaffold.cs` reads, and the `[setup:...]` anchors.

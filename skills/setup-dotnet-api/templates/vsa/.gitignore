@@ -1,8 +1,0 @@
-bin/
-obj/
-.vs/
-.idea/
-*.user
-appsettings.local.json
-# Local data of development (for example a key file or a database file).
-data/
