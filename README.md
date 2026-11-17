@@ -15,6 +15,7 @@ same name, and the plugin holds all skills.
 | [`dispatch-agents`](skills/dispatch-agents/SKILL.md) | Splits work into tracks for subagents. The lead decides the approach and writes high-risk tasks; workers write the rest. |
 | [`dispatch-agents-light`](skills/dispatch-agents-light/SKILL.md) | Variant for small or mechanical work: workers choose the approach, a reviewer checks high-risk tasks. Manual only. |
 | [`dispatch-agents-pro`](skills/dispatch-agents-pro/SKILL.md) | Variant for long plans and risky work: the lead only decides and reviews, workers write all code. Manual only. |
+| [`mockups`](skills/mockups/SKILL.md) | Builds one HTML page that shows the current UI and three design options as working copies, before the app code changes. |
 
 ## Install
 

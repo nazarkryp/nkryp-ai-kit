@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Name Of Mockup</title>
+<meta name="color-scheme" content="light dark">
+<!--
+  Mockup page scaffold. Replace every value marked "project" with a value from the project's design source.
+  Keep the structure: settings bar, columns (Current first), one frame per copy, one state machine per copy.
+-->
+<style>
+@font-face {
+  font-family: 'Project Font';
+  src: url('font.woff2') format('woff2'); /* project: copy the font file next to this page */
+  font-weight: 100 900;
+  font-display: swap;
+}
+/* project: the light tokens. Repeat the same names in the two dark blocks below. */
+:root {
+  --ground: #f4f4f6; --ink: #111114; --ink-2: #5d5d66;
+  --accent: #2563eb; --well: #e7e7eb; --surface: #ffffff; --hover: rgb(17 17 20 / 0.06);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --font: 'Project Font', ui-sans-serif, system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #0b0b0d; --ink: #f2f2f5; --ink-2: #9d9da8;
+    --accent: #4c8dff; --well: #19191d; --surface: #16161a; --hover: rgb(255 255 255 / 0.08);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #0b0b0d; --ink: #f2f2f5; --ink-2: #9d9da8;
+  --accent: #4c8dff; --well: #19191d; --surface: #16161a; --hover: rgb(255 255 255 / 0.08);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--ground); }
+body { margin: 0; background: var(--ground); color: var(--ink); font: 400 1rem/1.5 var(--font); padding: 1.5rem 16px 6rem; }
+@media (min-width: 640px) { body { padding-inline: 32px; } }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Intro and settings bar */
+.top { display: flex; flex-wrap: wrap; gap: 1.25rem 2.5rem; align-items: flex-start; justify-content: space-between; max-width: 1800px; margin: 0 auto 2.5rem; }
+.intro { min-width: 0; max-width: 46rem; }
+h1 { margin: 0 0 0.75rem; font-size: clamp(1.75rem, 1.2rem + 2vw, 2.75rem); font-weight: 600; line-height: 1; letter-spacing: -0.03em; text-wrap: balance; }
+.intro p { margin: 0 0 0.5rem; font-size: 0.875rem; color: var(--ink-2); }
+.problems { margin: 0 0 0.75rem; padding-left: 1.1rem; font-size: 0.875rem; display: grid; gap: 0.3rem; }
+.settings { display: grid; gap: 0.6rem; justify-items: start; }
+.setting { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+.setting > span { font-size: 0.8125rem; color: var(--ink-2); min-width: 4.5rem; }
+.seg { display: inline-flex; flex-wrap: wrap; padding: 4px; border-radius: 999px; gap: 2px; background: var(--surface); }
+.seg button { border: 0; background: none; cursor: pointer; border-radius: 999px; padding: 0.5rem 1.05rem; font-size: 0.875rem; font-weight: 500; color: var(--ink-2); transition: background-color 220ms var(--ease-out), color 150ms; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+.replay { border: 0; cursor: pointer; border-radius: 999px; height: 2.5rem; padding: 0 1rem; font-size: 0.875rem; font-weight: 600; background: none; transition: background-color 150ms; }
+.replay:hover { background: var(--hover); }
+
+/* Columns: Current first, then the options. They wrap on narrow screens. */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 3rem 2rem; max-width: 1800px; margin: 0 auto; }
+.cols.wide { grid-template-columns: 1fr; max-width: 1180px; }
+.copy { min-width: 0; }
+.copy-head { min-height: 6.5rem; margin-bottom: 1rem; }
+.cols.wide .copy-head { min-height: 0; }
+.copy-head h2 { margin: 0; font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+.copy-head p { margin: 0.2rem 0 0; font-size: 0.8125rem; color: var(--ink-2); max-width: 36rem; }
+
+/* The app frame: write the copy's breakpoints as container queries on it. */
+.frame { position: relative; height: 640px; overflow: hidden; background: var(--ground); border-radius: 16px; outline: 1px solid var(--well); container-type: inline-size; isolation: isolate; }
+.cols:not(.wide) .frame { max-width: 430px; }
+@container (min-width: 640px) { /* project: desktop layout of a copy */ }
+
+/* project: the CSS of the Current component, then one block per option */
+.state { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 0.5rem; padding: 1rem; text-align: center; animation: fade-in 260ms var(--ease-out) both; }
+@keyframes fade-in { from { opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-property: opacity !important; animation-name: fade-in !important; }
+}
+</style>
+
+<body>
+<div class="top">
+  <div class="intro">
+    <h1>Name of the screen</h1>
+    <p>What the page shows, and which settings change what. The blocks stand in for user content.</p>
+    <p><strong>Problems in the current design</strong></p>
+    <ol class="problems">
+      <li>A fact from the code that the user can see.</li>
+    </ol>
+  </div>
+  <div class="settings">
+    <div class="setting"><span>Theme</span>
+      <div class="seg" data-set="theme"><button aria-pressed="true" data-v="system">System</button><button aria-pressed="false" data-v="light">Light</button><button aria-pressed="false" data-v="dark">Dark</button></div>
+    </div>
+    <div class="setting"><span>Width</span>
+      <div class="seg" data-set="width"><button aria-pressed="true" data-v="phone">Phone</button><button aria-pressed="false" data-v="desktop">Desktop</button></div>
+    </div>
+    <!-- Time axis: keep these when a state appears, changes or goes away. -->
+    <div class="setting"><span>When</span>
+      <div class="seg" data-set="scenario"><button aria-pressed="true" data-v="a">Scenario A</button><button aria-pressed="false" data-v="b">Scenario B</button></div>
+    </div>
+    <div class="setting"><span>Server</span>
+      <div class="seg" data-set="server"><button aria-pressed="true" data-v="off">Off</button><button aria-pressed="false" data-v="on">On</button></div>
+    </div>
+    <div class="setting"><span></span><button class="replay" id="replay" type="button">Replay</button></div>
+  </div>
+</div>
+
+<div class="cols" id="cols">
+  <section class="copy">
+    <div class="copy-head"><h2>Current</h2><p>What the app does today.</p></div>
+    <div class="frame" data-kind="cur"></div>
+  </section>
+  <section class="copy">
+    <div class="copy-head"><h2>1 · Name</h2><p>What this option does differently.</p></div>
+    <div class="frame" data-kind="one"></div>
+  </section>
+  <section class="copy">
+    <div class="copy-head"><h2>2 · Name</h2><p>What this option does differently.</p></div>
+    <div class="frame" data-kind="two"></div>
+  </section>
+  <section class="copy">
+    <div class="copy-head"><h2>3 · Name</h2><p>What this option does differently.</p></div>
+    <div class="frame" data-kind="three"></div>
+  </section>
+</div>
+
+<script>
+/* Shared settings. A change to an axis changes every copy at once. */
+const S = { theme: 'system', width: 'phone', scenario: 'a', server: 'off' };
+const BACKOFF = [5, 10, 30];   // demo timings; give the real ones in the intro
+const WORK_MS = 1200;
+
+/*
+  One view function per column. It gets the copy and returns the HTML of the frame for the current phase.
+  A button with data-act="<name>" calls copy.act(name).
+*/
+const VIEWS = {
+  cur: (c) => c.phase === 'working'
+    ? '<div class="state"><p>Working…</p></div>'
+    : `<div class="state"><p>Current state: ${c.phase}</p><button type="button" data-act="retry">Try again</button></div>`,
+  one: (c) => `<div class="state"><p>Option 1: ${c.phase}</p>${c.phase === 'failed' ? `<p>Next try in <span data-left>${c.left}</span> s</p><button type="button" data-act="retry">Try now</button>` : ''}</div>`,
+  two: (c) => `<div class="state"><p>Option 2: ${c.phase}</p></div>`,
+  three: (c) => `<div class="state"><p>Option 3: ${c.phase}</p></div>`,
+};
+
+/* One state machine per copy, so a click in one column changes only that column. */
+class Copy {
+  constructor(frame) {
+    this.frame = frame;
+    this.kind = frame.dataset.kind;
+    this.auto = this.kind !== 'cur'; // the current design has no automatic retry in this example
+    this.timer = null;
+    this.tick = null;
+    new ResizeObserver(() => this.layout()).observe(frame);
+  }
+
+  reset() {
+    this.clear();
+    this.attempt = 0;
+    if (S.scenario === 'b') {
+      this.set('ready');
+      this.timer = setTimeout(() => this.fail(), 1400);
+    } else {
+      this.fail();
+    }
+  }
+
+  clear() { clearTimeout(this.timer); clearInterval(this.tick); }
+
+  set(phase) { this.phase = phase; this.render(); }
+
+  fail() {
+    this.clear();
+    this.left = this.auto ? BACKOFF[Math.min(this.attempt, BACKOFF.length - 1)] : null;
+    this.set('failed');
+    if (!this.auto) return;
+    // The countdown updates only its numbers, so focus and animations stay.
+    this.tick = setInterval(() => {
+      this.left--;
+      if (this.left <= 0) this.act('retry');
+      else this.frame.querySelectorAll('[data-left]').forEach((n) => (n.textContent = this.left));
+    }, 1000);
+  }
+
+  act(name) {
+    if (name === 'retry') {
+      if (this.phase === 'working') return;
+      this.clear();
+      this.set('working');
+      this.timer = setTimeout(() => {
+        if (S.server === 'on') this.set('ready');
+        else { this.attempt++; this.fail(); }
+      }, WORK_MS);
+    }
+  }
+
+  render() {
+    this.frame.innerHTML = VIEWS[this.kind](this);
+    this.frame.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => this.act(b.dataset.act)));
+    this.layout();
+  }
+
+  /* project: place stand-in content (a grid, a list) from this.frame.clientWidth. */
+  layout() {}
+}
+
+const copies = [...document.querySelectorAll('.frame')].map((f) => new Copy(f));
+const replay = () => copies.forEach((c) => c.reset());
+
+document.querySelectorAll('[data-set]').forEach((seg) => seg.addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  const key = seg.dataset.set;
+  S[key] = b.dataset.v;
+  seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  if (key === 'theme') {
+    if (S.theme === 'system') delete document.documentElement.dataset.theme;
+    else document.documentElement.dataset.theme = S.theme;
+  }
+  if (key === 'width') document.getElementById('cols').classList.toggle('wide', S.width === 'desktop');
+  if (key === 'scenario') replay();
+}));
+document.getElementById('replay').addEventListener('click', replay);
+replay();
+</script>
+</body>
+</html>
