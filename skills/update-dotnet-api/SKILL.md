@@ -9,8 +9,10 @@ The `setup-dotnet-api` skill copies its templates once. This skill renders the l
 same settings and brings the **kit-owned files** of the solution up to date.
 
 **Kit-owned files** are all files in the solution folder except `src/`, `tests/`, `*.slnx` and
-`.agents/setup.json`. They are the agent docs (`CLAUDE.md`, `AGENTS.md`, `.agents/*.md`) and the
-root config files. You change kit-owned files only, and only with the user's approval for each file.
+`.agents/setup.json`, plus the root agent files `AGENTS.md`, `CLAUDE.md` and `.agents/INSTRUCTIONS.md`
+in the root folder. They are the agent docs and the config files of the solution. The root folder is
+the solution folder when `solutionPath` in the setup record is `.`. Otherwise go up one folder from the
+solution folder for each segment of `solutionPath`: for `backend`, the root folder is the parent. You change kit-owned files only, and only with the user's approval for each file.
 The code in `src/` and `tests/` belongs to the user. You never change it.
 
 Ask each question with `AskUserQuestion` (at most 4 questions per call). When your agent has no
@@ -19,24 +21,12 @@ stop and wait for the answer.
 
 ## 1. Find the setup settings
 
-Read `.agents/setup.json` in the solution folder. It holds `kitVersion`, `name`, `arch` and `modules`.
+Get a format-2 setup record as
+[`../setup-dotnet-api/references/SETUP-RECORD.md`](../setup-dotnet-api/references/SETUP-RECORD.md) says.
+When the kit is installed as a plugin, the file is
+`${CLAUDE_PLUGIN_ROOT}/skills/setup-dotnet-api/references/SETUP-RECORD.md`.
 
-When the file does not exist, the solution is older than the setup record. Detect the settings:
-
-| Setting | Rule |
-|---|---|
-| `name` | The file name of `*.slnx` in the solution folder, without the extension. |
-| `arch` | `clean` when `src/<name>.Application/` exists. Otherwise `vsa` (a new vsa solution has no `Features/` folder yet). |
-| `auth` | `.agents/PERMISSIONS.md` exists. |
-| `permissions` | A file `InsufficientPermissionsDetails.cs` exists under `src/`. |
-| `signup` | `src/<name>.Api/appsettings.json` has `"AllowUserRegistration": true`. |
-| `docker` | `compose.yaml` exists in the solution folder. |
-
-Show the detected settings to the user and ask them to confirm. Treat `kitVersion` as `unknown`.
-Settings read from `setup.json` need no confirmation.
-
-Completion criterion: you have `name`, `arch` and the module list, read from `setup.json` or confirmed
-by the user.
+Completion criterion: `.agents/setup.json` has format 2, with every service of the solution in it.
 
 ## 2. Render the latest templates
 
@@ -47,17 +37,19 @@ When neither exists, stop and tell the user to install the `setup-dotnet-api` sk
 Render into a new, empty folder outside the solution (the session's scratchpad when your agent has one):
 
 ```bash
-dotnet run <scaffold.cs> -- --name <name> --out <empty folder> --arch <arch> [--auth] [--permissions] [--signup] [--docker]
+dotnet run <scaffold.cs> -- render --setup <solution folder>/.agents/setup.json --out <empty folder>
 ```
 
-Read `kitVersion` from the rendered `.agents/setup.json`. When it equals the solution's `kitVersion`,
+The render keeps the layout of the solution: the root files in `<out>`, the solution files in
+`<out>/<solutionPath>`. Read `kitVersion` from the rendered `<solutionPath>/.agents/setup.json`. When it equals the solution's `kitVersion`,
 tell the user that the solution is up to date and stop, unless the user asked for a full compare.
 
 Completion criterion: the script printed its summary, and you know the old and the new kit version.
 
 ## 3. Compare the kit-owned files
 
-Compare each kit-owned file of the rendered folder with the same file in the solution. Note each file
+Compare each kit-owned file of the rendered folder with the same file in the solution or the root
+folder. Note each file
 that is new, changed, or missing in the rendered folder. Line endings are not a difference: compare
 with them ignored (for example `diff --strip-trailing-cr`), and keep the line endings of the solution
 file when you write it.
@@ -82,8 +74,7 @@ back. Ask for each file with two options: "Apply (Recommended)" and "Skip". Put 
 kit changes in the `preview` of the "Apply" option. Ask about a file that is missing in the rendered
 folder (the kit no longer has it) with the options "Keep (Recommended)" and "Delete".
 
-Write the approved files. Then set `kitVersion` in `.agents/setup.json` to the new version. When the
-file does not exist, create it with the settings from step 1.
+Write the approved files. Then set `kitVersion` in `.agents/setup.json` to the new version.
 
 When an applied file is not a `.md` file, run `dotnet build <name>.slnx` and `dotnet test <name>.slnx`
 in the solution folder. A failure caused by your change is your bug: fix it, or restore the file and

@@ -1,23 +1,39 @@
 # @file-module:docker
 services:
-  api:
-    image: appname-api
+  # @each-service
+  servicename-api:
+    image: appname-servicename-api
     build:
       context: .
-      dockerfile: src/AppName.Api/Dockerfile
+      dockerfile: src/AppName.ServiceName.Api/Dockerfile
     ports:
-      - "8080:8080"
+      - "ServicePort:8080"
     volumes:
       # A named volume, so the non-root app user owns /app/data on every host.
-      - data:/app/data
+      - servicename-data:/app/data
+      # @module:jwt
+      # One key for all services of the solution, so each service accepts the tokens of the auth service.
+      - jwt-keys:/app/data/keys
+      # @end
     environment:
       # Trust the Docker networks as proxies, so the rate limit sees the client address.
       ForwardedHeaders__KnownNetworks__0: "172.16.0.0/12"
       # @module:auth
-      # Optional. Without it, the server creates /app/data/jwt-secret on the first start.
+      # Optional. Without it, the server creates /app/data/keys/jwt-secret on the first start.
+      # Set the same value on every service of the solution.
       # Jwt__Secret: "<output of: openssl rand -base64 32>"
       # @end
+      # @module:trust
+      # Optional. Without it, the server reads /app/data/keys/jwt-secret, which the auth service creates.
+      # Jwt__Secret: "<the same value as the auth service>"
+      # @end
     restart: on-failure:5
+  # @end
 
 volumes:
-  data:
+  # @each-service
+  servicename-data:
+  # @end
+  # @module:jwt
+  jwt-keys:
+  # @end

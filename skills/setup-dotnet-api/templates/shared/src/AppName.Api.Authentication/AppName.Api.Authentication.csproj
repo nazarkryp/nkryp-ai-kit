@@ -1,0 +1,24 @@
+<!-- @file-module:jwt -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- The access token check that every service with authentication shares: the auth service that
+         issues the tokens and the services that trust them. -->
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    </ItemGroup>
+
+    <!-- The implicit usings of the Web SDK. -->
+    <ItemGroup>
+        <Using Include="Microsoft.AspNetCore.Builder" />
+        <Using Include="Microsoft.AspNetCore.Http" />
+        <Using Include="Microsoft.Extensions.Configuration" />
+        <Using Include="Microsoft.Extensions.DependencyInjection" />
+    </ItemGroup>
+
+</Project>

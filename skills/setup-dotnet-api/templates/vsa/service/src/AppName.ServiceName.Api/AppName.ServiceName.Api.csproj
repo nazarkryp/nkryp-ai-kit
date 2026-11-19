@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <!-- The Docker build sets the release version with -p:Version=$VERSION. -->
+        <Version>0.0.0-dev</Version>
+        <OpenApiDocumentsDirectory>..</OpenApiDocumentsDirectory>
+        <OpenApiGenerateDocumentsOptions>--file-name openapi-servicename</OpenApiGenerateDocumentsOptions>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AppName.Api.Infrastructure\AppName.Api.Infrastructure.csproj" />
+        <!-- @module:jwt -->
+        <ProjectReference Include="..\AppName.Api.Authentication\AppName.Api.Authentication.csproj" />
+        <!-- @end -->
+        <ProjectReference Include="..\AppName.Common\AppName.Common.csproj" />
+        <ProjectReference Include="..\AppName.ServiceName.Domain\AppName.ServiceName.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- @module:auth -->
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+        <!-- @end -->
+        <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" PrivateAssets="all" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="AppName.ServiceName.UnitTests" />
+    </ItemGroup>
+
+</Project>

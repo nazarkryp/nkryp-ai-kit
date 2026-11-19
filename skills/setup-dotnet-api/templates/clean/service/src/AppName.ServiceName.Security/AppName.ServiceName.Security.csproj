@@ -1,0 +1,15 @@
+<!-- @file-module:auth -->
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\AppName.Api.Authentication\AppName.Api.Authentication.csproj" />
+        <ProjectReference Include="..\AppName.ServiceName.Domain\AppName.ServiceName.Domain.csproj" />
+        <ProjectReference Include="..\AppName.ServiceName.Persistence\AppName.ServiceName.Persistence.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    </ItemGroup>
+
+</Project>

@@ -1,7 +1,16 @@
 # Database step
 
 The templates have repository interfaces and no database code. This step adds one implementation for
-the database that the user chose. Do it after `scaffold.cs` ran.
+the database that the user chose, for one service. Do it after `scaffold.cs` ran. `<Name>` is the
+solution name and `<Service>` the service name, so the API project is `src/<Name>.<Service>.Api`.
+
+Each service owns its database: its own context, migrations and connection string. Two services never
+share tables. When the solution already runs a database server (for example a `postgres` service in
+`compose.yaml`), give the new service its own database on that server. A file database gets its own
+file.
+
+An auth service follows every section. A service without auth has no repository interfaces in the
+templates: skip sections 1 and 5, and write the interfaces for its own data first.
 
 ## 1. Read the contract
 
@@ -9,8 +18,8 @@ Read every file in the repository interface folder. The doc comments are the con
 
 | Architecture | Interfaces | Domain classes |
 |---|---|---|
-| Clean | `src/<Name>.Persistence/Abstractions/` | `src/<Name>.Domain/Accounts/` |
-| Vertical slices | `src/<Name>.Api/Persistence/Abstractions/` | `src/<Name>.Domain/Accounts/` |
+| Clean | `src/<Name>.<Service>.Persistence/Abstractions/` | `src/<Name>.<Service>.Domain/Accounts/` |
+| Vertical slices | `src/<Name>.<Service>.Api/Persistence/Abstractions/` | `src/<Name>.<Service>.Domain/Accounts/` |
 
 The guarantees below are the ones that are easy to get wrong. Each one is a *must*.
 
@@ -54,11 +63,11 @@ Usernames are ASCII by their rule, but role names can hold any letter. Store a n
 
 Location:
 
-- Clean: a project `src/<Name>.Persistence.<Db>/` (for example `<Name>.Persistence.Sqlite`), referenced
-  by `<Name>.Api`. Add it to `<Name>.slnx`.
-- Vertical slices: a folder `src/<Name>.Api/Persistence/<Db>/` in the Api project.
+- Clean: a project `src/<Name>.<Service>.Persistence.<Db>/` (for example `Acme.Shop.Admin.Persistence.Sqlite`),
+  referenced by `<Name>.<Service>.Api`. Add it to `<Name>.slnx`.
+- Vertical slices: a folder `src/<Name>.<Service>.Api/Persistence/<Db>/` in the Api project.
 
-Inside, use this layout: `<Name>DbContext.cs`, `Entities/` (persistence entities with `ToDomain()` /
+Inside, use this layout: `<Service>DbContext.cs`, `Entities/` (persistence entities with `ToDomain()` /
 `ToEntity()`), the repositories, `ServiceCollectionExtensions.cs`, and `Migrations/`. Make every class
 `internal` except the two extension methods below.
 
@@ -77,7 +86,7 @@ Data access:
 Write two public extension methods:
 
 - `AddPersistence(this IServiceCollection, IConfiguration)`: registers the context and every repository.
-  Read the connection string from `ConnectionStrings:<Name>` and validate it with `ValidateOnStart`, so
+  Read the connection string from `ConnectionStrings:<Service>` and validate it with `ValidateOnStart`, so
   a missing value stops the server with a clear message. It must not open a connection: it also runs
   during the build-time OpenAPI generation.
 - `InitializePersistenceAsync(this IServiceProvider)`: creates what the database needs (for a file
@@ -102,9 +111,9 @@ dotnet ef migrations add Initial --project <persistence project> --output-dir Mi
 
 | Anchor | File | Replace with |
 |---|---|---|
-| `[setup:persistence-services]` | `src/<Name>.Api/Program.cs` | `builder.Services.AddPersistence(builder.Configuration);` and its `using` |
-| `[setup:persistence-initialize]` | `src/<Name>.Api/Program.cs` | `await app.Services.InitializePersistenceAsync();` |
-| `[setup:persistence-test]` | `tests/<Name>.Api.IntegrationTests/Infrastructure/ApiFactory.cs` | A separate database for each test class (see below). |
+| `[setup:persistence-services]` | `src/<Name>.<Service>.Api/Program.cs` | `builder.Services.AddPersistence(builder.Configuration);` and its `using` |
+| `[setup:persistence-initialize]` | `src/<Name>.<Service>.Api/Program.cs` | `await app.Services.InitializePersistenceAsync();` |
+| `[setup:persistence-test]` | `tests/<Name>.<Service>.Api.IntegrationTests/Infrastructure/ApiFactory.cs` | A separate database for each test class (see below). |
 | `[setup:database-commands]` | `.agents/BACKEND.md` | The commands to add a migration and to apply it. |
 
 Test database for each test class:
@@ -117,12 +126,12 @@ Test database for each test class:
   disposed.
 
 Connection strings: `appsettings.json` gets the production value. Use a relative path for a file
-database (`Data Source=data/<name>.db`); it resolves to `/app/data` in the container and to the API
+database (`Data Source=data/<service>.db`); it resolves to `/app/data` in the container and to the API
 project folder in development. A server database needs a password: read it from an environment
-variable (`ConnectionStrings__<Name>`), never from a committed file.
+variable (`ConnectionStrings__<Service>`), never from a committed file.
 
-With Docker and a server database, add the database service to `compose.yaml` with a named volume, and
-pass the connection string to the API as an environment variable.
+With Docker and a server database, add the database service to `compose.yaml` with a named volume (once
+for the solution), and pass the connection string to the API service as an environment variable.
 
 ## 4. SQLite
 
@@ -138,7 +147,7 @@ pass the connection string to the API as an environment variable.
 
 ## 5. Test the guarantees
 
-Add `tests/<Name>.Api.IntegrationTests/Persistence/` with tests that run against the real database
+Add `tests/<Name>.<Service>.Api.IntegrationTests/Persistence/` with tests that run against the real database
 (build a `ServiceCollection` with `AddPersistence` and a temp database):
 
 - `TryAddAsync` with a taken username (any case) returns `false`.
@@ -150,10 +159,12 @@ Add `tests/<Name>.Api.IntegrationTests/Persistence/` with tests that run against
 
 ## 6. Update the docs
 
-- `.agents/INSTRUCTIONS.md`: the `[setup:database]` comment becomes one bullet under Tech.
+- `.agents/SOLUTION.md`, section Services: the `[setup:service-database]` comment of the service
+  becomes one bullet, for example `- Database: PostgreSQL with EF Core`.
 - `.agents/BACKEND.md`: replace every `<Db>` with the real name (Clean: the project
-  `<Name>.Persistence.<Db>`; vertical slices: the folder `Persistence/<Db>/`), and fill
-  `[setup:database-commands]`.
+  `<Name>.<Service>.Persistence.<Db>`; vertical slices: the folder `Persistence/<Db>/`), and fill
+  `[setup:database-commands]`. When it is already filled for another service, add the commands of
+  this service.
 
 Completion criterion: the build and every test pass, and a second start of the API against the same
 database succeeds.

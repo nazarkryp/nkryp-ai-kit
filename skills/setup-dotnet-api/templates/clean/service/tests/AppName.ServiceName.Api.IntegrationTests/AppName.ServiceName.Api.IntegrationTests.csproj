@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit.v3" />
+        <PackageReference Include="xunit.runner.visualstudio" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\AppName.ServiceName.Api\AppName.ServiceName.Api.csproj" />
+        <!-- @module:auth -->
+        <ProjectReference Include="..\..\src\AppName.ServiceName.Api.Contracts\AppName.ServiceName.Api.Contracts.csproj" />
+        <ProjectReference Include="..\..\src\AppName.ServiceName.Security\AppName.ServiceName.Security.csproj" />
+        <!-- @end -->
+        <!-- @module:permissions -->
+        <ProjectReference Include="..\..\src\AppName.ServiceName.Application\AppName.ServiceName.Application.csproj" />
+        <ProjectReference Include="..\..\src\AppName.ServiceName.Domain\AppName.ServiceName.Domain.csproj" />
+        <!-- @end -->
+    </ItemGroup>
+
+</Project>

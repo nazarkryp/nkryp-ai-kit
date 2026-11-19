@@ -3,11 +3,23 @@
 
 Read this file for a task that touches authentication, authorization, permissions, roles, accounts,
 sign-in or tokens. The code is the source of truth. This file says where things are and why.
+
+One service owns the accounts and issues the access tokens. In the paths below, `<Auth>` is its name:
+<!-- @each-service -->
+<!-- @module:auth -->
+`ServiceName`.
+<!-- @end -->
+<!-- @end -->
+All services check the tokens with `AppName.Api.Authentication` and the same key, issuer and audience.
+<!-- @module:trust -->
+A trust service has no accounts. It cannot read the revocation list of the auth service, so a
+signed-out access token stays valid there until it expires.
+<!-- @end -->
 <!-- @module:permissions -->
 
 ## Model
 
-- A **permission** is a stable code in `AppName.Domain/Accounts/Permissions.cs`. The code never changes,
+- A **permission** is a stable code in `AppName.<Auth>.Domain/Accounts/Permissions.cs`. The code never changes,
   because the database and the access tokens store it.
 - A **role** is a named set of permissions. An admin edits roles through the admin API.
 - An **account** has one role or none (`Account.RoleId`), plus **direct grants** (`Account.Grants`).
@@ -49,7 +61,7 @@ Every signed-in account may also read `/accounts/me`, change its own password an
 
 ## Enforcement
 
-- Every route has exactly one rule from `AppName.Api/Infrastructure/Extensions/AuthorizationEndpointExtensions.cs`
+- Every route has exactly one rule from `AppName.<Service>.Api/Infrastructure/Extensions/AuthorizationEndpointExtensions.cs`
   or `AllowAnonymous()`. Put the rule on the route, not on the group.
 <!-- @module:permissions -->
   - `RequirePermission(code)` / `RequireAnyPermission(a, b, ...)`: a signed-in account with one of the permissions.
@@ -57,7 +69,7 @@ Every signed-in account may also read `/accounts/me`, change its own password an
   - `AllowAnySignedInUser()`: any signed-in account.
   - `AllowAnonymous()`: no sign-in.
 - The fallback policy needs a signed-in user, so a route without a rule is never public by mistake.
-- `RouteMap` in `tests/AppName.Api.IntegrationTests/Security/EndpointAuthorizationCoverageTests.cs` is the
+- `RouteMap` in `tests/AppName.<Service>.Api.IntegrationTests/Security/EndpointAuthorizationCoverageTests.cs` is the
   approved route map. A new or changed route fails that test until you add it to the map on purpose.
 <!-- @module:permissions -->
 - `PermissionAuthorizeAttribute` (`AuthorizeAttribute` + `IAuthorizationRequirementData`) carries the
